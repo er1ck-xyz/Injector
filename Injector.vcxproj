@@ -64,7 +64,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
-      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;psapi.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;psapi.lib;user32.lib;dwmapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
 
@@ -84,7 +84,7 @@
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;psapi.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;psapi.lib;user32.lib;dwmapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
 
@@ -92,6 +92,7 @@
   <ItemGroup>
     <ClInclude Include="include\GUI.h" />
     <ClInclude Include="include\ImGuiStyle.h" />
+    <ClInclude Include="include\NativeWindow.h" />
     <ClInclude Include="include\InjectionPanel.h" />
     <ClInclude Include="include\LogPanel.h" />
     <ClInclude Include="include\Logger.h" />

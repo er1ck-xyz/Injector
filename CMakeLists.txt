@@ -58,5 +58,6 @@ if(WIN32)
     target_link_libraries(Injector PRIVATE
         Psapi
         User32
+        Dwmapi
     )
 endif()
