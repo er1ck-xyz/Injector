@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <d3d11.h>
 #include <dxgi.h>
+#include <functional>
 #include <imgui.h>
 #include <imgui_impl_dx11.h>
 #include <imgui_impl_win32.h>
@@ -131,8 +132,8 @@ public:
         ImGui_ImplDX11_Init(device.Get(), deviceContext.Get());
 
         // Setup estilo
-        ImGuiStyle::SetupNeonStyle();
-        ImGuiStyle::LoadFonts();
+        NeonStyle::SetupNeonStyle();
+        NeonStyle::LoadFonts();
 
         ShowWindow(hwnd, SW_SHOWDEFAULT);
         UpdateWindow(hwnd);

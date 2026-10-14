@@ -1,6 +1,6 @@
 #pragma once
 
-namespace ImGuiStyle {
+namespace NeonStyle {
     void SetupNeonStyle();
     void LoadFonts();
 }

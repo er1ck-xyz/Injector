@@ -22,12 +22,7 @@ bool ProcessManager::EnumerateProcesses() {
     }
 
     do {
-        char processName[MAX_PATH];
-        WideCharToMultiByte(CP_UTF8, 0, entry.szExeFile, -1,
-                           processName, sizeof(processName), nullptr, nullptr);
-
-        processes.emplace_back(processName, entry.th32ProcessID);
-
+        processes.emplace_back(entry.szExeFile, entry.th32ProcessID);
     } while (Process32Next(snapshot, &entry));
 
     CloseHandle(snapshot);
