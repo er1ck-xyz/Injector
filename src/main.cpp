@@ -160,7 +160,7 @@ public:
         wc.style = CS_HREDRAW | CS_VREDRAW;
         wc.lpfnWndProc = WndProc;
         wc.hInstance = GetModuleHandleW(NULL);
-        wc.hCursor = LoadCursorW(NULL, IDC_ARROW);
+        wc.hCursor = LoadCursor(NULL, IDC_ARROW);
         wc.lpszClassName = L"InjectorWindow";
         RegisterClassExW(&wc);
 
