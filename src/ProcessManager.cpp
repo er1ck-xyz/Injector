@@ -22,7 +22,16 @@ bool ProcessManager::EnumerateProcesses() {
     }
 
     do {
-        processes.emplace_back(entry.szExeFile, entry.th32ProcessID);
+        bool is64 = true;
+        HANDLE hProc = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE,
+                                   entry.th32ProcessID);
+        if (hProc) {
+            BOOL wow64 = FALSE;
+            if (IsWow64Process(hProc, &wow64) && wow64)
+                is64 = false;
+            CloseHandle(hProc);
+        }
+        processes.emplace_back(entry.szExeFile, entry.th32ProcessID, is64);
     } while (Process32Next(snapshot, &entry));
 
     CloseHandle(snapshot);

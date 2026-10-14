@@ -7,8 +7,10 @@
 struct ProcessInfo {
     std::string name;
     DWORD pid;
+    bool is64bit;
 
-    ProcessInfo(const std::string& n, DWORD p) : name(n), pid(p) {}
+    ProcessInfo(const std::string& n, DWORD p, bool x64 = true)
+        : name(n), pid(p), is64bit(x64) {}
 };
 
 class ProcessManager {

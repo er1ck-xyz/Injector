@@ -17,9 +17,14 @@ void GUI::Update(float deltaTime) {
     processPanel->Update(deltaTime);
     injectionPanel->Update();
     logPanel->Update();
+
+    injectionPanel->SetSelectedProcess(
+        processPanel->GetSelectedPID(),
+        processPanel->GetSelectedName(),
+        processPanel->IsSelectedProcess64()
+    );
 }
 
-// Altura do cabecalho personalizado (area de arraste).
 static const float kTitleBarHeight = 54.0f;
 
 void GUI::DrawTitleBar() {
@@ -31,27 +36,64 @@ void GUI::DrawTitleBar() {
     const ImVec2 p1 = ImVec2(p0.x + width, p0.y + kTitleBarHeight);
     const float centerY = p0.y + kTitleBarHeight * 0.5f;
 
-    // Fundo da barra (superficie) + hairline inferior de destaque.
     dl->AddRectFilled(p0, p1, pal.Surface);
     dl->AddLine(ImVec2(p0.x, p1.y - 1.0f), ImVec2(p1.x, p1.y - 1.0f),
                 pal.AccentDim, 1.0f);
 
-    // Area de arraste nativa: cobre toda a barra, sem botoes visiveis.
-    ImGui::InvisibleButton("##titlebar_drag", ImVec2(width, kTitleBarHeight));
+    // --- Close / Minimize buttons (right side) ---
+    const float btnSize = 18.0f;
+    const float btnPad = 16.0f;
+
+    // Close button
+    {
+        ImVec2 closePos(p1.x - btnPad - btnSize, centerY - btnSize * 0.5f);
+        ImGui::SetCursorScreenPos(closePos);
+        ImGui::PushID("##close");
+        if (ImGui::InvisibleButton("##close_btn", ImVec2(btnSize, btnSize))) {
+            windowOpen = false;
+            PostQuitMessage(0);
+        }
+        ImU32 closeCol = ImGui::IsItemHovered()
+            ? IM_COL32(235, 87, 87, 255) : IM_COL32(180, 185, 200, 180);
+        ImVec2 c(closePos.x + btnSize * 0.5f, closePos.y + btnSize * 0.5f);
+        float s = 5.0f;
+        dl->AddLine(ImVec2(c.x - s, c.y - s), ImVec2(c.x + s, c.y + s), closeCol, 1.8f);
+        dl->AddLine(ImVec2(c.x + s, c.y - s), ImVec2(c.x - s, c.y + s), closeCol, 1.8f);
+        ImGui::PopID();
+    }
+
+    // Minimize button
+    {
+        ImVec2 minPos(p1.x - btnPad - btnSize - 30.0f, centerY - btnSize * 0.5f);
+        ImGui::SetCursorScreenPos(minPos);
+        ImGui::PushID("##min");
+        if (ImGui::InvisibleButton("##min_btn", ImVec2(btnSize, btnSize))) {
+            HWND hwnd = NativeWindow::GetHandle();
+            if (hwnd) ShowWindow(hwnd, SW_MINIMIZE);
+        }
+        ImU32 minCol = ImGui::IsItemHovered()
+            ? IM_COL32(230, 235, 250, 255) : IM_COL32(180, 185, 200, 180);
+        ImVec2 c(minPos.x + btnSize * 0.5f, minPos.y + btnSize * 0.5f);
+        dl->AddLine(ImVec2(c.x - 5.0f, c.y), ImVec2(c.x + 5.0f, c.y), minCol, 1.8f);
+        ImGui::PopID();
+    }
+
+    // Drag area (everything except the buttons)
+    ImGui::SetCursorScreenPos(p0);
+    float dragW = width - btnPad - btnSize - 30.0f - btnSize - 10.0f;
+    ImGui::InvisibleButton("##titlebar_drag", ImVec2(dragW, kTitleBarHeight));
     if (ImGui::IsItemActivated())
         NativeWindow::StartDrag();
 
-    // --- Logo: quadrado arredondado com gradiente azul -> ciano --------------
+    // --- Logo ---
     const float logoSize = 28.0f;
     const ImVec2 lg0 = ImVec2(p0.x + 22.0f, centerY - logoSize * 0.5f);
     const ImVec2 lg1 = ImVec2(lg0.x + logoSize, lg0.y + logoSize);
-    const ImU32 top = IM_COL32(59, 146, 246, 255);   // azul
-    const ImU32 bot = IM_COL32(74, 198, 254, 255);   // ciano
+    const ImU32 top = IM_COL32(59, 146, 246, 255);
+    const ImU32 bot = IM_COL32(74, 198, 254, 255);
     dl->AddRectFilledMultiColor(lg0, lg1, top, top, bot, bot);
-    // reforca cantos arredondados por cima
     dl->AddRect(lg0, lg1, IM_COL32(255, 255, 255, 40), 8.0f, 0, 1.0f);
 
-    // Chevron ">" branco dentro do logo.
     const float cx = lg0.x + logoSize * 0.40f;
     const float cy = centerY;
     const float ch = logoSize * 0.22f;
@@ -59,7 +101,7 @@ void GUI::DrawTitleBar() {
     dl->AddLine(ImVec2(cx - ch, cy - ch), ImVec2(cx + ch, cy), white, 2.2f);
     dl->AddLine(ImVec2(cx + ch, cy), ImVec2(cx - ch, cy + ch), white, 2.2f);
 
-    // --- Titulo: "INJECTOR" branco + "PRO" em destaque ----------------------
+    // --- Title ---
     ImFont* titleFont = NeonStyle::TitleFont();
     const float titleSize = 22.0f;
     const float textX = lg1.x + 14.0f;
@@ -73,51 +115,84 @@ void GUI::DrawTitleBar() {
     dl->AddText(titleFont, titleSize, ImVec2(textX + t1sz.x, textY),
                 pal.Accent, t2);
 
-    // --- Subtitulo discreto a direita ---------------------------------------
+    // --- Subtitle ---
     ImFont* bodyFont = NeonStyle::BodyFont();
-    const float subSize = 14.0f;
+    const float subSize = 13.0f;
     const char* sub = "Enterprise DLL Injection Suite";
     ImVec2 subSz = bodyFont->CalcTextSizeA(subSize, FLT_MAX, -1.0f, sub);
+    float subX = p1.x - subSz.x - btnPad - btnSize - 30.0f - btnSize - 20.0f;
     dl->AddText(bodyFont, subSize,
-                ImVec2(p1.x - subSz.x - 22.0f, centerY - subSize * 0.5f),
+                ImVec2(subX, centerY - subSize * 0.5f),
                 pal.TextMuted, sub);
 }
 
+void GUI::DrawSectionHeader(const char* label) {
+    ImDrawList* dl = ImGui::GetWindowDrawList();
+    ImVec2 pos = ImGui::GetCursorScreenPos();
+    float width = ImGui::GetContentRegionAvail().x;
+
+    ImFont* font = NeonStyle::BodyFont();
+    float fontSize = 13.0f;
+    ImVec2 textSize = font->CalcTextSizeA(fontSize, FLT_MAX, -1.0f, label);
+
+    float lineY = pos.y + textSize.y * 0.5f;
+    ImU32 lineColor = IM_COL32(59, 146, 246, 50);
+    ImU32 textColor = IM_COL32(143, 150, 166, 200);
+
+    dl->AddLine(ImVec2(pos.x, lineY), ImVec2(pos.x + 6, lineY), lineColor, 1.0f);
+    dl->AddText(font, fontSize, ImVec2(pos.x + 12, pos.y), textColor, label);
+    float textEnd = pos.x + 12 + textSize.x + 6;
+    dl->AddLine(ImVec2(textEnd, lineY), ImVec2(pos.x + width, lineY), lineColor, 1.0f);
+
+    ImGui::Dummy(ImVec2(0, textSize.y + 6));
+}
+
 void GUI::DrawContent() {
-    // Area de conteudo com padding consistente, fundo grafite (host).
     ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0, 0, 0, 0));
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20, 18));
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20, 14));
     ImGui::BeginChild("##content", ImVec2(0, 0), ImGuiChildFlags_None,
                       ImGuiWindowFlags_NoScrollbar);
 
-    ImGuiTabBarFlags tabFlags = ImGuiTabBarFlags_FittingPolicyResizeDown;
+    // === PROCESS SECTION ===
+    DrawSectionHeader("PROCESSO ALVO");
+    processPanel->Draw();
 
-    if (ImGui::BeginTabBar("##MainTabs", tabFlags)) {
+    ImGui::Spacing();
+    ImGui::Spacing();
 
-        // Aba 1: Processos
-        if (ImGui::BeginTabItem("  Processos  ")) {
-            ImGui::Spacing();
-            processPanel->Draw();
-            injectionPanel->SetSelectedProcess(processPanel->GetSelectedPID());
-            ImGui::EndTabItem();
-        }
+    // === DLL + OPTIONS (two columns) ===
+    if (ImGui::BeginTable("##payload_opts", 2, ImGuiTableFlags_None)) {
+        ImGui::TableSetupColumn("##dll", ImGuiTableColumnFlags_WidthStretch, 0.62f);
+        ImGui::TableSetupColumn("##opt", ImGuiTableColumnFlags_WidthStretch, 0.38f);
+        ImGui::TableNextRow();
 
-        // Aba 2: Injecao  (UTF-8: Inje\xC3\xA7\xC3\xA3o)
-        if (ImGui::BeginTabItem("  Inje\xC3\xA7\xC3\xA3o  ")) {
-            ImGui::Spacing();
-            injectionPanel->Draw();
-            ImGui::EndTabItem();
-        }
+        ImGui::TableSetColumnIndex(0);
+        ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0, 0));
+        DrawSectionHeader("DLL PAYLOAD");
+        injectionPanel->DrawDLLSection();
+        ImGui::PopStyleVar();
 
-        // Aba 3: Logs
-        if (ImGui::BeginTabItem("  Logs  ")) {
-            ImGui::Spacing();
-            logPanel->Draw();
-            ImGui::EndTabItem();
-        }
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0, 0));
+        DrawSectionHeader("OPCOES");
+        injectionPanel->DrawOptionsSection();
+        ImGui::PopStyleVar();
 
-        ImGui::EndTabBar();
+        ImGui::EndTable();
     }
+
+    ImGui::Spacing();
+    ImGui::Spacing();
+
+    // === INJECT BUTTON + PROGRESS ===
+    injectionPanel->DrawInjectSection();
+
+    ImGui::Spacing();
+    ImGui::Spacing();
+
+    // === LOG SECTION ===
+    DrawSectionHeader("LOG DE ATIVIDADE");
+    logPanel->Draw();
 
     ImGui::EndChild();
     ImGui::PopStyleVar();

@@ -12,9 +12,10 @@ private:
 
     bool windowOpen = true;
 
-    // Cabecalho personalizado (barra de arraste) e area de conteudo.
     void DrawTitleBar();
     void DrawContent();
+
+    static void DrawSectionHeader(const char* label);
 
 public:
     GUI();

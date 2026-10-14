@@ -56,6 +56,8 @@ namespace NativeWindow {
             s_windowStart.y + (cursor.y - s_dragCursorStart.y),
             0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
     }
+
+    HWND GetHandle() { return g_MainHwnd; }
 }
 
 class DX11Window {

@@ -1,4 +1,5 @@
 #include "ProcessListPanel.h"
+#include "ImGuiStyle.h"
 #include "Logger.h"
 #include <imgui.h>
 
@@ -16,46 +17,45 @@ void ProcessListPanel::Update(float deltaTime) {
 }
 
 void ProcessListPanel::Draw() {
-    ImGui::SetNextItemWidth(-1);
+    const NeonStyle::Palette& pal = NeonStyle::Colors();
 
-    ImGui::InputTextWithHint("##ProcessSearch",
-                            "Buscar processos...",
+    float availW = ImGui::GetContentRegionAvail().x;
+    float btnW = 90.0f;
+
+    ImGui::SetNextItemWidth(availW - btnW - ImGui::GetStyle().ItemSpacing.x);
+    ImGui::InputTextWithHint("##ProcessSearch", "Buscar processos...",
                             searchBuffer, sizeof(searchBuffer));
-
     processManager.SetSearchFilter(searchBuffer);
 
-    ImGui::Spacing();
-
-    if (ImGui::Button("Atualizar Processos", ImVec2(-1, 0))) {
+    ImGui::SameLine();
+    if (ImGui::Button("Atualizar", ImVec2(btnW, 0))) {
         processManager.EnumerateProcesses();
+        refreshTimer = 0.0f;
     }
 
     ImGui::Spacing();
 
     auto filtered = processManager.GetFilteredProcesses();
-    ImGui::TextDisabled("Total: %zu processos", filtered.size());
-
-    ImGui::Separator();
 
     static ImGuiTableFlags flags =
         ImGuiTableFlags_Borders |
         ImGuiTableFlags_RowBg |
         ImGuiTableFlags_ScrollY |
         ImGuiTableFlags_Sortable |
-        ImGuiTableFlags_Resizable |
-        ImGuiTableFlags_Reorderable;
+        ImGuiTableFlags_Resizable;
 
-    ImVec2 outer_size = ImVec2(-1, ImGui::GetContentRegionAvail().y - 80);
+    ImVec2 outer_size = ImVec2(-1, 180);
 
-    if (ImGui::BeginTable("ProcessTable", 2, flags, outer_size)) {
-        ImGui::TableSetupColumn("Nome do Processo", ImGuiTableColumnFlags_DefaultSort);
-        ImGui::TableSetupColumn("PID", ImGuiTableColumnFlags_WidthFixed, 100);
+    if (ImGui::BeginTable("ProcessTable", 3, flags, outer_size)) {
+        ImGui::TableSetupColumn("Nome", ImGuiTableColumnFlags_DefaultSort, 0.0f);
+        ImGui::TableSetupColumn("PID", ImGuiTableColumnFlags_WidthFixed, 80);
+        ImGui::TableSetupColumn("Arch", ImGuiTableColumnFlags_WidthFixed, 50);
         ImGui::TableHeadersRow();
 
         for (size_t i = 0; i < filtered.size(); ++i) {
             const auto& proc = filtered[i];
 
-            ImGui::TableNextRow(ImGuiTableRowFlags_None, 30.0f);
+            ImGui::TableNextRow(ImGuiTableRowFlags_None, 26.0f);
             ImGui::PushID(static_cast<int>(i));
 
             if (ImGui::TableSetColumnIndex(0)) {
@@ -63,19 +63,29 @@ void ProcessListPanel::Draw() {
 
                 if (isSelected) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0,
-                                          ImGui::GetColorU32(ImVec4(0.8f, 0.0f, 1.0f, 0.3f)));
+                                          IM_COL32(59, 146, 246, 50));
                 }
 
                 if (ImGui::Selectable(proc.name.c_str(), isSelected,
                                      ImGuiSelectableFlags_SpanAllColumns)) {
                     selectedPID = proc.pid;
-                    Logger::Info("Processo selecionado: " + proc.name + " (PID: " +
-                               std::to_string(proc.pid) + ")");
+                    selectedName = proc.name;
+                    selectedIs64 = proc.is64bit;
+                    Logger::Info("Processo selecionado: " + proc.name +
+                               " (PID: " + std::to_string(proc.pid) + ") " +
+                               (proc.is64bit ? "x64" : "x86"));
                 }
             }
 
             if (ImGui::TableSetColumnIndex(1)) {
                 ImGui::Text("%u", proc.pid);
+            }
+
+            if (ImGui::TableSetColumnIndex(2)) {
+                ImVec4 archColor = proc.is64bit
+                    ? ImVec4(0.29f, 0.78f, 1.0f, 1.0f)
+                    : ImVec4(0.98f, 0.75f, 0.29f, 1.0f);
+                ImGui::TextColored(archColor, proc.is64bit ? "x64" : "x86");
             }
 
             ImGui::PopID();
@@ -84,17 +94,12 @@ void ProcessListPanel::Draw() {
         ImGui::EndTable();
     }
 
-    ImGui::Separator();
-
     if (selectedPID != 0) {
-        ImGui::BeginChild("##SelectedInfo", ImVec2(-1, 60), true);
-        ImGui::TextColored(ImVec4(0.0f, 0.9f, 1.0f, 1.0f),
-                          "Processo Selecionado");
-        ImGui::Text("PID: %u", selectedPID);
-        ImGui::EndChild();
+        ImGui::TextColored(ImVec4(0.29f, 0.78f, 1.0f, 1.0f),
+                          "Selecionado: %s (PID: %u) %s",
+                          selectedName.c_str(), selectedPID,
+                          selectedIs64 ? "x64" : "x86");
     } else {
-        ImGui::BeginChild("##NoSelection", ImVec2(-1, 60), true);
-        ImGui::TextDisabled("Selecione um processo na tabela");
-        ImGui::EndChild();
+        ImGui::TextDisabled("Selecione um processo na tabela acima");
     }
 }

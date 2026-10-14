@@ -36,8 +36,17 @@ add_executable(Injector
     src/ImGuiStyle.cpp
     src/GUI.cpp
     src/ProcessListPanel.cpp
+    src/ProcessManager.cpp
     src/InjectionPanel.cpp
     src/LogPanel.cpp
+    src/Logger.cpp
+    src/EnterpriseInjector.cpp
+    src/StringEncryption.cpp
+    src/AntiReverseEngineering.cpp
+    src/HookEvasion.cpp
+    src/BehavioralEvasion.cpp
+    src/MemoryForensicsEvasion.cpp
+    src/ArtifactElimination.cpp
 )
 
 target_include_directories(Injector PRIVATE
@@ -59,5 +68,6 @@ if(WIN32)
         Psapi
         User32
         Dwmapi
+        Comdlg32
     )
 endif()
