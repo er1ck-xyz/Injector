@@ -63,7 +63,8 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraries>d3d11.lib;dxgi.lib;d3dcompiler.lib;psapi.lib;user32.lib;%(AdditionalLibraries)</AdditionalLibraries>
+      <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;psapi.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
 
@@ -80,9 +81,10 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
+      <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <AdditionalLibraries>d3d11.lib;dxgi.lib;d3dcompiler.lib;psapi.lib;user32.lib;%(AdditionalLibraries)</AdditionalLibraries>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;psapi.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
 
