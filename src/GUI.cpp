@@ -13,6 +13,7 @@ GUI::~GUI() {
 }
 
 void GUI::Update(float deltaTime) {
+    NativeWindow::UpdateDrag();
     processPanel->Update(deltaTime);
     injectionPanel->Update();
     logPanel->Update();

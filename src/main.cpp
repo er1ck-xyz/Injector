@@ -28,13 +28,33 @@ static HWND g_MainHwnd = nullptr;
 static const int kResizeBorder = 6;
 
 namespace NativeWindow {
+    static bool s_dragging = false;
+    static POINT s_dragCursorStart = {};
+    static POINT s_windowStart = {};
+
     void StartDrag() {
         if (!g_MainHwnd)
             return;
-        // Encerra qualquer captura do mouse feita pelo ImGui e delega o
-        // arraste ao gerenciador de janelas do Windows (loop modal nativo).
-        ReleaseCapture();
-        SendMessageW(g_MainHwnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
+        GetCursorPos(&s_dragCursorStart);
+        RECT rc;
+        GetWindowRect(g_MainHwnd, &rc);
+        s_windowStart = { rc.left, rc.top };
+        s_dragging = true;
+    }
+
+    void UpdateDrag() {
+        if (!s_dragging || !g_MainHwnd)
+            return;
+        if (!(GetAsyncKeyState(VK_LBUTTON) & 0x8000)) {
+            s_dragging = false;
+            return;
+        }
+        POINT cursor;
+        GetCursorPos(&cursor);
+        SetWindowPos(g_MainHwnd, NULL,
+            s_windowStart.x + (cursor.x - s_dragCursorStart.x),
+            s_windowStart.y + (cursor.y - s_dragCursorStart.y),
+            0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
     }
 }
 
@@ -208,6 +228,15 @@ public:
         SetWindowPos(hwnd, NULL, 0, 0, 0, 0,
             SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE |
             SWP_NOZORDER | SWP_NOACTIVATE);
+
+        // Cantos arredondados nativos e borda em modo escuro (Windows 11).
+        const DWORD kCornerPref = 33; // DWMWA_WINDOW_CORNER_PREFERENCE
+        const DWORD kRound = 2;       // DWMWCP_ROUND
+        DwmSetWindowAttribute(hwnd, kCornerPref, &kRound, sizeof(kRound));
+
+        const DWORD kDarkMode = 20;   // DWMWA_USE_IMMERSIVE_DARK_MODE
+        const BOOL darkVal = TRUE;
+        DwmSetWindowAttribute(hwnd, kDarkMode, &darkVal, sizeof(darkVal));
 
         // Device D3D11
         DXGI_SWAP_CHAIN_DESC sd = {};
