@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+
+  <PropertyGroup Label="Configuration">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <ProjectGuid>{12345678-1234-1234-1234-123456789012}</ProjectGuid>
+    <RootNamespace>Injector</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+
+  <PropertyGroup Label="UserMacros" />
+
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">obj\$(Configuration)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">obj\$(Configuration)\</IntDir>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)external\imgui;$(ProjectDir)external\imgui\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalLibraries>d3d11.lib;dxgi.lib;d3dcompiler.lib;psapi.lib;user32.lib;%(AdditionalLibraries)</AdditionalLibraries>
+    </Link>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)external\imgui;$(ProjectDir)external\imgui\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <AdditionalLibraries>d3d11.lib;dxgi.lib;d3dcompiler.lib;psapi.lib;user32.lib;%(AdditionalLibraries)</AdditionalLibraries>
+    </Link>
+  </ItemDefinitionGroup>
+
+  <!-- Headers -->
+  <ItemGroup>
+    <ClInclude Include="include\GUI.h" />
+    <ClInclude Include="include\ImGuiStyle.h" />
+    <ClInclude Include="include\InjectionPanel.h" />
+    <ClInclude Include="include\LogPanel.h" />
+    <ClInclude Include="include\Logger.h" />
+    <ClInclude Include="include\ProcessListPanel.h" />
+    <ClInclude Include="include\ProcessManager.h" />
+  </ItemGroup>
+
+  <!-- Sources -->
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\GUI.cpp" />
+    <ClCompile Include="src\ImGuiStyle.cpp" />
+    <ClCompile Include="src\InjectionPanel.cpp" />
+    <ClCompile Include="src\LogPanel.cpp" />
+    <ClCompile Include="src\Logger.cpp" />
+    <ClCompile Include="src\ProcessListPanel.cpp" />
+    <ClCompile Include="src\ProcessManager.cpp" />
+    <ClCompile Include="external\imgui\imgui.cpp" />
+    <ClCompile Include="external\imgui\imgui_demo.cpp" />
+    <ClCompile Include="external\imgui\imgui_draw.cpp" />
+    <ClCompile Include="external\imgui\imgui_tables.cpp" />
+    <ClCompile Include="external\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="external\imgui\backends\imgui_impl_dx11.cpp" />
+    <ClCompile Include="external\imgui\backends\imgui_impl_win32.cpp" />
+  </ItemGroup>
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
