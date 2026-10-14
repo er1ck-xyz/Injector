@@ -108,12 +108,21 @@ private:
 
     LRESULT HandleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         switch (msg) {
-            // Remove a moldura padrao mantendo a janela redimensionavel e com
-            // sombra do DWM: a area de cliente passa a ocupar a janela inteira.
+            // Remove a moldura padrao: retorno incondicional de 0 faz a area
+            // de cliente ocupar a janela inteira em TODAS as chamadas
+            // (criacao inicial com wParam==FALSE e recalculos com TRUE).
             case WM_NCCALCSIZE:
-                if (wParam == TRUE)
-                    return 0;
-                break;
+                if (wParam == TRUE && IsZoomed(hWnd)) {
+                    auto* p = reinterpret_cast<NCCALCSIZE_PARAMS*>(lParam);
+                    HMONITOR mon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
+                    MONITORINFO mi = { sizeof(mi) };
+                    if (GetMonitorInfoW(mon, &mi))
+                        p->rgrc[0] = mi.rcWork;
+                }
+                return 0;
+
+            case WM_NCACTIVATE:
+                return TRUE;
 
             case WM_NCHITTEST:
                 return HitTestBorders(hWnd, lParam);
@@ -195,6 +204,10 @@ public:
         // Sombra nativa do DWM numa janela sem moldura.
         MARGINS margins = { 1, 1, 1, 1 };
         DwmExtendFrameIntoClientArea(hwnd, &margins);
+
+        SetWindowPos(hwnd, NULL, 0, 0, 0, 0,
+            SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE |
+            SWP_NOZORDER | SWP_NOACTIVATE);
 
         // Device D3D11
         DXGI_SWAP_CHAIN_DESC sd = {};
