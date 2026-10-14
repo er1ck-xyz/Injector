@@ -95,6 +95,13 @@
     <ClInclude Include="include\Logger.h" />
     <ClInclude Include="include\ProcessListPanel.h" />
     <ClInclude Include="include\ProcessManager.h" />
+    <ClInclude Include="include\StringEncryption.h" />
+    <ClInclude Include="include\AntiReverseEngineering.h" />
+    <ClInclude Include="include\HookEvasion.h" />
+    <ClInclude Include="include\BehavioralEvasion.h" />
+    <ClInclude Include="include\MemoryForensicsEvasion.h" />
+    <ClInclude Include="include\ArtifactElimination.h" />
+    <ClInclude Include="include\EnterpriseInjector.h" />
   </ItemGroup>
 
   <!-- Sources -->
@@ -107,6 +114,13 @@
     <ClCompile Include="src\Logger.cpp" />
     <ClCompile Include="src\ProcessListPanel.cpp" />
     <ClCompile Include="src\ProcessManager.cpp" />
+    <ClCompile Include="src\StringEncryption.cpp" />
+    <ClCompile Include="src\AntiReverseEngineering.cpp" />
+    <ClCompile Include="src\HookEvasion.cpp" />
+    <ClCompile Include="src\BehavioralEvasion.cpp" />
+    <ClCompile Include="src\MemoryForensicsEvasion.cpp" />
+    <ClCompile Include="src\ArtifactElimination.cpp" />
+    <ClCompile Include="src\EnterpriseInjector.cpp" />
     <ClCompile Include="external\imgui\imgui.cpp" />
     <ClCompile Include="external\imgui\imgui_demo.cpp" />
     <ClCompile Include="external\imgui\imgui_draw.cpp" />
